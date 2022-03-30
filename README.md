@@ -1,5 +1,7 @@
 # UoA Discords API
 
+[![Node.js CI](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/node.js.yml/badge.svg)](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/node.js.yml)
+
 Backend API for the UoA Discords project.
 
 ## Installation
