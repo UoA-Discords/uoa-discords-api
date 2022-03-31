@@ -19,7 +19,7 @@ Dependencies:
     npm install
     ```
 
-3. TBC
+3. Copy the [`config.example.json`](./config.example.json) file and rename it to [`config.json`](./config.json), change the fields if necessary.
 
 ## Scripts
 
