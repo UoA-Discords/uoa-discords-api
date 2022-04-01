@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import { ApplicationModel } from '../models/ApplicationModel';
+import { ApplicationModel } from '../../models/ApplicationModel';
 
 // temporary auth lmao
 const allowed = new Set(['nacho']);
 
-// eslint-disable-next-line require-await
+/** Lists all server applications. */
 async function getApplications(req: Request, res: Response): Promise<void> {
     try {
         const authorization = req.headers.authorization;
@@ -19,8 +19,6 @@ async function getApplications(req: Request, res: Response): Promise<void> {
         }
 
         const applications = await ApplicationModel.find({});
-
-        // const servers: Application & { guildInfo: GuildObject }
 
         res.status(200).json(applications);
     } catch (error) {

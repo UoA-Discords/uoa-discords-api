@@ -1,5 +1,7 @@
 {
     "port": 3001,
     "discordToken": "abcdefg",
-    "mongoURI": "mongodb+srv://..."
+    "mongoURI": "mongodb+srv://...",
+    "discordClientID": "1234567890",
+    "discordClientSecret": "abcefdg"
 }

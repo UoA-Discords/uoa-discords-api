@@ -21,6 +21,8 @@ export type VerifyUserResponse = InvalidUser | ValidUser;
  * @param {string} id - User ID snowflake.
  *
  * @returns {Promise<VerifyUserResponse>} Verification result.
+ *
+ * @deprecated Should be using Discord OAuth instead.
  */
 async function verifyDiscordUserID(id: string): Promise<VerifyUserResponse> {
     try {
