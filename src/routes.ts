@@ -1,10 +1,18 @@
 import { Router } from 'express';
-import applyBasic from './handlers/applyBasic';
-import getApplications from './handlers/getApplications';
+import applyBot from './handlers/applications/applyBot';
+import applyWeb from './handlers/applications/applyWeb';
+import getApplications from './handlers/applications/getApplications';
+import getToken from './handlers/auth/getToken';
+import refreshToken from './handlers/auth/refreshToken';
 
 const router = Router();
 
-router.post('/applyBasic', applyBasic);
+router.post('/applications/applyWeb', applyWeb);
+router.post('/applications/applyBot', applyBot);
+
 router.get('/applications', getApplications);
+
+router.post('/auth/getToken', getToken);
+router.post('/auth/refreshToken', refreshToken);
 
 export default router;

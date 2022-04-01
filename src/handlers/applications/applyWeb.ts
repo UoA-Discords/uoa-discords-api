@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
-import verifyDiscordInvite from '../helpers/verifyDiscordInvite';
-import { ApplicationModel } from '../models/ApplicationModel';
+import verifyDiscordInvite from '../../helpers/verifyDiscordInvite';
+import { ApplicationModel } from '../../models/ApplicationModel';
 
-async function applyBasic(req: Request, res: Response): Promise<void> {
+/** Handles a server application made from the website. */
+async function applyWeb(req: Request, res: Response): Promise<void> {
     try {
         const { inviteURL } = req.body;
         if (typeof inviteURL !== 'string') {
-            res.status(400).json(`inviteURL must be a string (got ${typeof inviteURL})`);
+            res.status(400).json(`body "inviteURL" must be a string (got ${typeof inviteURL})`);
             return;
         }
 
@@ -41,4 +42,4 @@ async function applyBasic(req: Request, res: Response): Promise<void> {
     }
 }
 
-export default applyBasic;
+export default applyWeb;
