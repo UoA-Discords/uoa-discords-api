@@ -7,4 +7,7 @@ export default interface Config {
 
     /** MongoDB connection URI */
     mongoURI: string;
+
+    discordClientID: string;
+    discordClientSecret: string;
 }
