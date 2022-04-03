@@ -261,6 +261,11 @@
     "@typescript-eslint/types" "5.17.0"
     eslint-visitor-keys "^3.0.0"
 
+"@uoa-discords/uoa-discords-shared-types@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@uoa-discords/uoa-discords-shared-types/-/uoa-discords-shared-types-1.0.1.tgz#78f46fd0f38ed918a7e479dbba394de95e0a25c6"
+  integrity sha512-he+1UGGcod+iexRZSo0PVRXYw3zsodMB61VUGwnn+bnrDqoZ02fNG2WebptqH34dgno+qbkotfnczEvXeQvF6w==
+
 abbrev@1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
