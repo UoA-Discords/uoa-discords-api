@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { BotApplication, WebApplication } from '../types/ServerApplication';
+import { Application } from '../types/ServerApplication';
 
-export const ApplicationSchema = new Schema<WebApplication | BotApplication>({
+export const ApplicationSchema = new Schema<Application>({
     _id: String,
     source: String,
     createdTimestamp: {
@@ -13,6 +13,7 @@ export const ApplicationSchema = new Schema<WebApplication | BotApplication>({
         type: String,
         required: false,
     },
+    tags: [String],
 });
 
 export const ApplicationModel = model('server_applications', ApplicationSchema);

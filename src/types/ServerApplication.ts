@@ -1,4 +1,4 @@
-import { Invite } from './Discord';
+import { Invite, Tag } from '@uoa-discords/shared-utils';
 
 interface ApplicationBase {
     /** Guild ID used for indexing. */
@@ -6,6 +6,7 @@ interface ApplicationBase {
     source: 'web' | 'bot';
     createdTimestamp: number;
     invite: Invite;
+    tags: Tag[];
 }
 
 export interface WebApplication extends ApplicationBase {
