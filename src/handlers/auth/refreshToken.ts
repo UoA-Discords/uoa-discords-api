@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import AuthHelpers from './authHelpers';
+import AuthHelpers from '../../helpers/AuthHelpers';
 
 /**
  * Refreshes a Discord access token.

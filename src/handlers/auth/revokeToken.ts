@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import AuthHelpers from './authHelpers';
+import AuthHelpers from '../../helpers/AuthHelpers';
 
 /** Revokes a Discord access token. */
 async function revokeToken(req: Request, res: Response): Promise<void> {

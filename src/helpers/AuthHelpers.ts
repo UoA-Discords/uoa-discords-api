@@ -1,6 +1,6 @@
 import { AccessTokenResponse, APIResponse } from '@uoa-discords/shared-utils';
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import Config from '../../types/Config';
+import Config from '../types/Config';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { discordClientID: client_id, discordClientSecret: client_secret }: Config = require('../../../config.json');

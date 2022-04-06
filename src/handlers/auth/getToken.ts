@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import AuthHelpers from './authHelpers';
+import AuthHelpers from '../../helpers/AuthHelpers';
 
 /**
  * Upgrades a user's OAuth code into an access token.
