@@ -1,6 +1,6 @@
 # UoA Discords API
 
-[![Node.js CI](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/node.js.yml/badge.svg)](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/node.js.yml)
+[![Node.js CI](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/node.js.yml/badge.svg)](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/node.js.yml)[![Deploy](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/deploy.yml/badge.svg)](https://github.com/UoA-Discords/uoa-discords-api/actions/workflows/deploy.yml)
 
 Backend API for the UoA Discords project.
 
