@@ -1,9 +1,5 @@
-import axios from 'axios';
 import { Request, Response } from 'express';
-import Config from '../../types/Config';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { discordClientID: client_id, discordClientSecret: client_secret }: Config = require('../../../config.json');
+import AuthHelpers from './authHelpers';
 
 /** Revokes a Discord access token. */
 async function revokeToken(req: Request, res: Response): Promise<void> {
@@ -14,19 +10,10 @@ async function revokeToken(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        const params = new URLSearchParams();
-        params.set('client_id', client_id);
-        params.set('client_secret', client_secret);
-        params.set('token', token);
-
-        const { status, statusText } = await axios.post('https://discord.com/api/v9/oauth2/token/revoke', params, {
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-        });
-
-        res.status(status).json(statusText);
-        return;
+        const apiResponse = await AuthHelpers.revokeToken(token);
+        if (apiResponse.success) {
+            res.status(200).json(apiResponse.data);
+        } else throw apiResponse.error;
     } catch (error) {
         res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
     }
