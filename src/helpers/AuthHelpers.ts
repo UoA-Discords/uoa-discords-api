@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosInstance } from 'axios';
 import Config from '../types/Config';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const { discordClientID: client_id, discordClientSecret: client_secret }: Config = require('../../../config.json');
+const { discordClientID: client_id, discordClientSecret: client_secret }: Config = require('../../config.json');
 
 export default abstract class AuthHelpers {
     private static readonly _OAuthServer: AxiosInstance = axios.create({
