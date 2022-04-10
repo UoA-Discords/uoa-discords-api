@@ -15,7 +15,7 @@ async function getToken(req: Request, res: Response): Promise<void> {
         }
 
         if (typeof redirect_uri !== 'string') {
-            res.status(400).json(`body "redirect_uri" must be a string (got ${typeof code})`);
+            res.status(400).json(`body "redirect_uri" must be a string (got ${typeof redirect_uri})`);
             return;
         }
 

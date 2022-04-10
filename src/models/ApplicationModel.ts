@@ -1,19 +1,20 @@
 import { Schema, model } from 'mongoose';
-import { Application } from '../types/ServerApplication';
+import { ServerApplication } from '../types/ServerApplication';
 
-export const ApplicationSchema = new Schema<Application>({
+export const ApplicationSchema = new Schema<ServerApplication>({
     _id: String,
     source: String,
-    createdTimestamp: {
+    createdAt: {
         type: Number,
         default: Date.now,
     },
+    createdBy: {},
     invite: {},
     botId: {
         type: String,
         required: false,
     },
-    tags: [String],
+    tags: [Number],
 });
 
 export const ApplicationModel = model('server_applications', ApplicationSchema);
