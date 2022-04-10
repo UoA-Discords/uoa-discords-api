@@ -1,12 +1,13 @@
-import { Invite, Tag } from '@uoa-discords/shared-utils';
+import { Invite, TagNames, User } from '@uoa-discords/shared-utils';
 
 interface ApplicationBase {
     /** Guild ID used for indexing. */
     _id: string;
     source: 'web' | 'bot';
-    createdTimestamp: number;
+    createdAt: number;
+    createdBy: User;
     invite: Invite;
-    tags: Tag[];
+    tags: TagNames[];
 }
 
 export interface WebApplication extends ApplicationBase {
@@ -18,4 +19,4 @@ export interface BotApplication extends ApplicationBase {
     botId: string;
 }
 
-export type Application = WebApplication | BotApplication;
+export type ServerApplication = WebApplication | BotApplication;
