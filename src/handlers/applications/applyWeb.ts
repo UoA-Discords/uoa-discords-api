@@ -1,57 +1,155 @@
+import {
+    BlacklistedGuilds,
+    DiscordAPI,
+    HelperAPI,
+    OptOutGuilds,
+    Verifiers,
+    WebApplicationBody,
+} from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
+import ApplicationHelpers from '../../helpers/ApplicationHelpers';
+import { ApplicationModel } from '../../models/ApplicationModel';
+import { RegisteredServerModel } from '../../models/RegisteredServerModel';
+import { ServerApplication } from '../../types/ServerApplication';
 
 /** Handles a server application made from the website. */
 // eslint-disable-next-line require-await
 async function applyWeb(req: Request, res: Response): Promise<void> {
     try {
-        const { access_token, invite_url } = req.body;
+        const { inviteCode, access_token, tags }: WebApplicationBody = req.body;
+
+        if (typeof inviteCode !== 'string') {
+            res.status(400).json(`body "inviteCode" must be a string (got ${typeof inviteCode})`);
+            return;
+        }
+
         if (typeof access_token !== 'string') {
             res.status(400).json(`body "access_token" must be a string (got ${typeof access_token})`);
             return;
         }
-        if (typeof invite_url !== 'string') {
-            res.status(400).json(`body "invite_url" must be a string (got ${typeof invite_url})`);
+
+        if (!Array.isArray(tags)) {
+            res.status(400).json(`body "tags" must be an array (got ${typeof tags})`);
             return;
         }
 
-        // const [user, guilds, invite] = await Promise.all([
-        //     DiscordHelpers.getDiscordUser(access_token),
-        //     DiscordHelpers.getUserGuildIds(access_token),
-        //     DiscordHelpers.getInviteInformation(invite_url),
-        // ]);
+        if (tags.length && tags.some((tag) => typeof tag !== 'number')) {
+            res.status(400).json('body "tags" must be an array of integers (found non-integers)');
+            return;
+        }
 
-        // if (!user || !guilds) {
-        //     res.status(400).json('Invalid access token');
-        //     return;
-        // }
-        // if (!invite) {
-        //     res.status(400).json('Invalid invite URL');
-        //     return;
-        // }
+        const resolvedTags = ApplicationHelpers.validateTagArray(tags);
+        if (resolvedTags !== true) {
+            res.status(400).json({ tagErrors: resolvedTags });
+            return;
+        }
 
-        // if (!guilds.has(invite.guild.id)) {
-        //     res.status(400).json(`Guild "${invite_url}" is not in ${user.username}'s guilds`);
-        //     return;
-        // }
+        const [user, invite, guilds] = await Promise.all([
+            DiscordAPI.getUserInfo(access_token),
+            DiscordAPI.getInviteData(inviteCode),
+            DiscordAPI.getUserGuilds(access_token),
+        ]);
 
-        // const existingApplication = await ApplicationModel.findById(verified.invite.guild.id);
-        // if (existingApplication !== null) {
-        //     res.status(400).json(`Already have an application for ${verified.invite.guild.name}`);
-        //     return;
-        // }
+        // access token invalid
+        if (!user.success || !guilds.success) {
+            res.status(401).json('Invalid access token');
+            return;
+        }
 
-        // try {
-        //     await ApplicationModel.create({
-        //         _id: verified.invite.guild.id,
-        //         source: 'web',
-        //         invite: verified.invite,
-        //     });
-        // } catch (error) {
-        //     res.status(201).json(error instanceof Error ? error.message : 'Unknown error occurred');
-        //     return;
-        // }
+        // invite invalid
+        if (!invite.success) {
+            res.status(400).json('Invalid invite code');
+            return;
+        }
 
-        res.status(201).json('Ryon gayu');
+        // invite expires
+        if (invite.data.expires_at) {
+            res.status(400).json('Invite cannot have an expiry date');
+            return;
+        }
+
+        // no guild
+        if (!invite.data.guild) {
+            res.status(400).json('No guild found for that invite');
+            return;
+        }
+
+        // guild too small
+        if (invite.data.approximate_member_count < HelperAPI.MIN_ACCEPTABLE_MEMBERS) {
+            res.status(400).json(
+                `Member count must be greater than or equal to ${HelperAPI.MIN_ACCEPTABLE_MEMBERS} (got ${invite.data.approximate_member_count})`,
+            );
+            return;
+        }
+
+        // no guild icon
+        if (!invite.data.guild.icon) {
+            res.status(400).json(`${invite.data.guild.name} must have a server icon`);
+            return;
+        }
+
+        // user not in guild
+        const guildIdSet = new Set<string>(guilds.data.map(({ id }) => id));
+        if (!guildIdSet.has(invite.data.guild.id)) {
+            res.status(400).json(`${user.data.username} must be in ${invite.data.guild.name}`);
+            return;
+        }
+
+        // guild already applied
+        const existingApplication = await ApplicationModel.findById(invite.data.guild.id);
+        if (existingApplication) {
+            res.status(400).json('An application for that guild already exists');
+            return;
+        }
+
+        // guild already accepted
+        const existingServer = await RegisteredServerModel.findById(invite.data.guild.id);
+        if (existingServer) {
+            res.status(400).json('That guild is already registered');
+            return;
+        }
+
+        // guild blacklisted
+        if (BlacklistedGuilds.has(invite.data.guild.id)) {
+            res.status(400).json('That guild is blacklisted');
+            return;
+        }
+
+        // guild opt-out
+        if (OptOutGuilds.has(invite.data.guild.id)) {
+            res.status(400).json('That guild has opted out of the registry');
+            return;
+        }
+
+        // user has pending application
+        let verifierOverride = false;
+        const otherApplication = await ApplicationModel.findOne({ 'createdBy.id': user.data.id });
+        if (otherApplication) {
+            if (Verifiers.has(user.data.id)) {
+                verifierOverride = true;
+            } else {
+                res.status(400).json('Can only submit one application at a time');
+                return;
+            }
+        }
+
+        const newApplication: ServerApplication = {
+            _id: invite.data.guild.id,
+            source: 'web',
+            createdAt: Date.now(),
+            createdBy: user.data,
+            invite: invite.data,
+            tags,
+        };
+
+        await ApplicationModel.create(newApplication);
+
+        const output = {
+            message: `Successfully created an application for ${invite.data.guild.name}`,
+            verifierOverride,
+        };
+
+        res.status(201).json(output);
         return;
     } catch (error) {
         res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
