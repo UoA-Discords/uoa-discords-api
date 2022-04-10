@@ -855,10 +855,10 @@
     "@typescript-eslint/types" "5.18.0"
     eslint-visitor-keys "^3.0.0"
 
-"@uoa-discords/shared-utils@^1.1.8":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@uoa-discords/shared-utils/-/shared-utils-1.1.8.tgz#27ad7d941afe6fed28be8bb467ae1edcbfb0541c"
-  integrity sha512-k434CtkQU473WkEni5KH0l2QiHfG5DvFJyfaYxEPur5LKC1JeQ+4bbJQZb2ygMOJaMXvU3+dfWtOBFoGRrCzOQ==
+"@uoa-discords/shared-utils@^1.1.12":
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/@uoa-discords/shared-utils/-/shared-utils-1.1.12.tgz#3755c8786aa5c3ffd034a611ec1dd65a4fdb410c"
+  integrity sha512-ocUK4UuTm5dqYb5mY1Azs5r67JsoKEyKmb2MJOUHpVJetAg1NxLPacO04C88J8JjxFgy6DxYCCDRMAmLzSgtOA==
 
 abab@^2.0.3, abab@^2.0.5:
   version "2.0.5"
