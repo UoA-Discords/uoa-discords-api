@@ -1,20 +1,24 @@
+import { DiscordAPI, Verifiers } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
 import { ApplicationModel } from '../../models/ApplicationModel';
-
-// temporary auth lmao
-const allowed = new Set(['nacho']);
 
 /** Lists all server applications. */
 async function getApplications(req: Request, res: Response): Promise<void> {
     try {
-        const authorization = req.headers.authorization;
-        if (typeof authorization !== 'string') {
-            res.status(400).json(`Authorization header must be a string (got ${typeof authorization})`);
+        const access_token = req.headers.authorization;
+        if (typeof access_token !== 'string') {
+            res.status(400).json(`Authorization header must be a string (got ${typeof access_token})`);
             return;
         }
 
-        if (!allowed.has(authorization)) {
+        const user = await DiscordAPI.getUserInfo(access_token);
+        if (!user.success) {
             res.status(401).json('Invalid auth token');
+            return;
+        }
+
+        if (!Verifiers.has(user.data.id)) {
+            res.status(401).json('You do not have permission to view this');
             return;
         }
 
