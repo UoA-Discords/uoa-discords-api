@@ -16,15 +16,15 @@ import { ServerApplication } from '../../types/ServerApplication';
 // eslint-disable-next-line require-await
 async function applyWeb(req: Request, res: Response): Promise<void> {
     try {
-        const { inviteCode, access_token, tags }: WebApplication = req.body;
+        const { inviteCode, authToken, tags, dryRun }: WebApplication = req.body;
 
         if (typeof inviteCode !== 'string') {
             res.status(400).json(`body "inviteCode" must be a string (got ${typeof inviteCode})`);
             return;
         }
 
-        if (typeof access_token !== 'string') {
-            res.status(400).json(`body "access_token" must be a string (got ${typeof access_token})`);
+        if (typeof authToken !== 'string') {
+            res.status(400).json(`body "authToken" must be a string (got ${typeof authToken})`);
             return;
         }
 
@@ -45,9 +45,9 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         }
 
         const [user, invite, guilds] = await Promise.all([
-            DiscordAPI.getUserInfo(access_token),
+            DiscordAPI.getUserInfo(authToken),
             DiscordAPI.getInviteData(inviteCode),
-            DiscordAPI.getUserGuilds(access_token),
+            DiscordAPI.getUserGuilds(authToken),
         ]);
 
         // access token invalid
@@ -133,16 +133,18 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
             }
         }
 
-        const newApplication: ServerApplication = {
-            _id: invite.data.guild.id,
-            source: 'web',
-            createdAt: Date.now(),
-            createdBy: user.data,
-            invite: invite.data,
-            tags,
-        };
+        if (!dryRun) {
+            const newApplication: ServerApplication = {
+                _id: invite.data.guild.id,
+                source: 'web',
+                createdAt: Date.now(),
+                createdBy: user.data,
+                invite: invite.data,
+                tags,
+            };
 
-        await ApplicationModel.create(newApplication);
+            await ApplicationModel.create(newApplication);
+        }
 
         const output = {
             message: `Successfully created an application for ${invite.data.guild.name}`,
