@@ -4,7 +4,7 @@ import {
     HelperAPI,
     OptOutGuilds,
     Verifiers,
-    WebApplicationBody,
+    WebApplication,
 } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
 import ApplicationHelpers from '../../helpers/ApplicationHelpers';
@@ -16,7 +16,7 @@ import { ServerApplication } from '../../types/ServerApplication';
 // eslint-disable-next-line require-await
 async function applyWeb(req: Request, res: Response): Promise<void> {
     try {
-        const { inviteCode, access_token, tags }: WebApplicationBody = req.body;
+        const { inviteCode, access_token, tags }: WebApplication = req.body;
 
         if (typeof inviteCode !== 'string') {
             res.status(400).json(`body "inviteCode" must be a string (got ${typeof inviteCode})`);
