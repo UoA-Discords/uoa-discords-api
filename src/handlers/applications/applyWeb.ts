@@ -34,6 +34,7 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         }
 
         if (tags.length && tags.some((tag) => typeof tag !== 'number')) {
+            console.log(tags);
             res.status(400).json('body "tags" must be an array of integers (found non-integers)');
             return;
         }
@@ -91,7 +92,7 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         // user not in guild
         const guildIdSet = new Set<string>(guilds.data.map(({ id }) => id));
         if (!guildIdSet.has(invite.data.guild.id)) {
-            res.status(400).json(`${user.data.username} must be in ${invite.data.guild.name}`);
+            res.status(400).json(`You must be in ${invite.data.guild.name}`);
             return;
         }
 
