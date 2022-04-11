@@ -856,9 +856,9 @@
     eslint-visitor-keys "^3.0.0"
 
 "@uoa-discords/shared-utils@^1.1.12":
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/@uoa-discords/shared-utils/-/shared-utils-1.1.12.tgz#3755c8786aa5c3ffd034a611ec1dd65a4fdb410c"
-  integrity sha512-ocUK4UuTm5dqYb5mY1Azs5r67JsoKEyKmb2MJOUHpVJetAg1NxLPacO04C88J8JjxFgy6DxYCCDRMAmLzSgtOA==
+  version "1.2.12"
+  resolved "https://registry.yarnpkg.com/@uoa-discords/shared-utils/-/shared-utils-1.2.12.tgz#4b9e866d61ba025c41141dbe77ea3bcb4a26954b"
+  integrity sha512-jixFLH28y8bxF1W1Jn9sKOlZsim0wFoPPKG4wlthWsvzZ9nMiZrp/ZFJtF+kE4HBJowSxnNuYk4l7H3ILEi/0w==
 
 abab@^2.0.3, abab@^2.0.5:
   version "2.0.5"
