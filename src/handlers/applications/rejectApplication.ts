@@ -51,7 +51,7 @@ async function rejectApplication(req: Request, res: Response): Promise<void> {
             `${user.data.username}#${user.data.discriminator} rejected application for ${applicationInQuestion.invite.guild?.name}.`,
         );
 
-        res.sendStatus(201);
+        res.sendStatus(200);
     } catch (error) {
         server.errorLog.log('applications/reject', error);
         res.sendStatus(500);
