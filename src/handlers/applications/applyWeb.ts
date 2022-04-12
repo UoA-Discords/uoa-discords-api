@@ -7,13 +7,13 @@ import {
     WebApplication,
 } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
+import server from '../..';
 import ApplicationHelpers from '../../helpers/ApplicationHelpers';
 import { ApplicationModel } from '../../models/ApplicationModel';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
 import { ServerApplication } from '../../types/ServerApplication';
 
 /** Handles a server application made from the website. */
-// eslint-disable-next-line require-await
 async function applyWeb(req: Request, res: Response): Promise<void> {
     try {
         const { inviteCode, authToken, tags, dryRun }: WebApplication = req.body;
@@ -145,6 +145,10 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
             };
 
             await ApplicationModel.create(newApplication);
+
+            server.applicationLog.log(
+                `${user.data.username}#${user.data.discriminator} created an application for ${invite.data.guild.name}.`,
+            );
         }
 
         const output = {
@@ -153,9 +157,9 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         };
 
         res.status(201).json(output);
-        return;
     } catch (error) {
-        res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
+        server.errorLog.log('applications/applyWeb', error);
+        res.sendStatus(500);
     }
 }
 

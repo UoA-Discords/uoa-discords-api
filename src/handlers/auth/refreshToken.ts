@@ -1,4 +1,6 @@
+import { DiscordAPI } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
+import server from '../..';
 import AuthHelpers from '../../helpers/AuthHelpers';
 
 /**
@@ -16,12 +18,20 @@ async function refreshToken(req: Request, res: Response): Promise<void> {
 
         const apiResponse = await AuthHelpers.refreshToken(refresh_token);
         if (apiResponse.success) {
+            DiscordAPI.getUserInfo(apiResponse.data.access_token).then((res) => {
+                if (res.success) {
+                    server.authLog.log(`${res.data.username}#${res.data.discriminator} refreshed session`);
+                } else {
+                    server.authLog.log('Failed to get user data on refresh.', res.error.response?.data);
+                }
+            });
             res.status(200).json(apiResponse.data);
         } else throw apiResponse.error;
 
         return;
     } catch (error) {
-        res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
+        server.errorLog.log('/auth/refreshToken', error);
+        res.sendStatus(500);
     }
 }
 
