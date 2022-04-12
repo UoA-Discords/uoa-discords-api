@@ -4,7 +4,7 @@ import {
     HelperAPI,
     OptOutGuilds,
     Verifiers,
-    WebApplicationBody,
+    WebApplication,
 } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
 import ApplicationHelpers from '../../helpers/ApplicationHelpers';
@@ -16,15 +16,15 @@ import { ServerApplication } from '../../types/ServerApplication';
 // eslint-disable-next-line require-await
 async function applyWeb(req: Request, res: Response): Promise<void> {
     try {
-        const { inviteCode, access_token, tags }: WebApplicationBody = req.body;
+        const { inviteCode, authToken, tags, dryRun }: WebApplication = req.body;
 
         if (typeof inviteCode !== 'string') {
             res.status(400).json(`body "inviteCode" must be a string (got ${typeof inviteCode})`);
             return;
         }
 
-        if (typeof access_token !== 'string') {
-            res.status(400).json(`body "access_token" must be a string (got ${typeof access_token})`);
+        if (typeof authToken !== 'string') {
+            res.status(400).json(`body "authToken" must be a string (got ${typeof authToken})`);
             return;
         }
 
@@ -34,6 +34,7 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         }
 
         if (tags.length && tags.some((tag) => typeof tag !== 'number')) {
+            console.log(tags);
             res.status(400).json('body "tags" must be an array of integers (found non-integers)');
             return;
         }
@@ -45,9 +46,9 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         }
 
         const [user, invite, guilds] = await Promise.all([
-            DiscordAPI.getUserInfo(access_token),
+            DiscordAPI.getUserInfo(authToken),
             DiscordAPI.getInviteData(inviteCode),
-            DiscordAPI.getUserGuilds(access_token),
+            DiscordAPI.getUserGuilds(authToken),
         ]);
 
         // access token invalid
@@ -91,7 +92,7 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         // user not in guild
         const guildIdSet = new Set<string>(guilds.data.map(({ id }) => id));
         if (!guildIdSet.has(invite.data.guild.id)) {
-            res.status(400).json(`${user.data.username} must be in ${invite.data.guild.name}`);
+            res.status(400).json(`You must be in ${invite.data.guild.name}`);
             return;
         }
 
@@ -133,16 +134,18 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
             }
         }
 
-        const newApplication: ServerApplication = {
-            _id: invite.data.guild.id,
-            source: 'web',
-            createdAt: Date.now(),
-            createdBy: user.data,
-            invite: invite.data,
-            tags,
-        };
+        if (!dryRun) {
+            const newApplication: ServerApplication = {
+                _id: invite.data.guild.id,
+                source: 'web',
+                createdAt: Date.now(),
+                createdBy: user.data,
+                invite: invite.data,
+                tags,
+            };
 
-        await ApplicationModel.create(newApplication);
+            await ApplicationModel.create(newApplication);
+        }
 
         const output = {
             message: `Successfully created an application for ${invite.data.guild.name}`,
