@@ -40,7 +40,7 @@ export default class Logger {
     }
 
     public log(...messages: unknown[]): void {
-        const timestamp = `[${new Date().toLocaleTimeString('en-NZ')}] `;
+        const timestamp = `[${new Date().toLocaleString('en-NZ')}] `;
         const output: string[] = messages.map((e, i) => {
             if (i === 0) return `${timestamp}${e}\n`;
             return `${' '.repeat(timestamp.length)}${e}\n`;
