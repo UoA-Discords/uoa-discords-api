@@ -152,7 +152,7 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         }
 
         const output = {
-            message: `Successfully created an application for ${invite.data.guild.name}`,
+            message: `Successfully created an application for ${invite.data.guild.name} (${invite.data.code})`,
             verifierOverride,
         };
 
