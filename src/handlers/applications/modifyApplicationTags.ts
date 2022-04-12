@@ -68,8 +68,8 @@ async function modifyApplicationTags(req: Request, res: Response): Promise<void>
 
         server.auditLog.log(
             `${user.data.username}#${user.data.discriminator} updated application tags for ${applicationInQuestion.invite.guild?.name}`,
-            `Added: ${addedTags.length ? addedTags.join(',') : 'none'}`,
-            `Removed: ${removedTags.length ? removedTags.join(',') : 'none'}`,
+            `+ Added: ${addedTags.length ? addedTags.join(',') : 'none'}`,
+            `- Removed: ${removedTags.length ? removedTags.join(',') : 'none'}`,
         );
 
         res.sendStatus(200);
