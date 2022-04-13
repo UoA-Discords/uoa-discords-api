@@ -8,6 +8,7 @@ import rejectApplication from './handlers/applications/rejectApplication';
 import getToken from './handlers/auth/getToken';
 import refreshToken from './handlers/auth/refreshToken';
 import revokeToken from './handlers/auth/revokeToken';
+import getServers from './handlers/servers/getServers';
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.post('/applications/reject', rejectApplication);
 router.post('/applications/modifyTags', modifyApplicationTags);
 
 router.get('/applications', getApplications);
+router.get('/servers', getServers);
 
 router.post('/auth/getToken', getToken);
 router.post('/auth/refreshToken', refreshToken);
