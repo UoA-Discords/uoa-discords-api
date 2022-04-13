@@ -1,4 +1,6 @@
+import { DiscordAPI } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
+import server from '../..';
 import AuthHelpers from '../../helpers/AuthHelpers';
 
 /**
@@ -21,10 +23,22 @@ async function getToken(req: Request, res: Response): Promise<void> {
 
         const apiResponse = await AuthHelpers.getToken(code, redirect_uri);
         if (apiResponse.success) {
+            DiscordAPI.getUserInfo(apiResponse.data.access_token).then((res) => {
+                if (res.success) {
+                    server.authLog.log(`${res.data.username}#${res.data.discriminator} logged in`);
+                } else {
+                    server.authLog.log('Failed to get user data on login.', res.error.response?.data);
+                }
+            });
+
             res.status(200).json(apiResponse.data);
-        } else throw apiResponse.error;
+        } else {
+            server.authLog.log('Failed to login.', apiResponse.error.response?.data);
+            throw apiResponse.error;
+        }
     } catch (error) {
-        res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
+        server.errorLog.log('auth/getToken', error);
+        res.sendStatus(500);
     }
 }
 

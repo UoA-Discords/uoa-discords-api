@@ -1,5 +1,6 @@
 import { DiscordAPI, Verifiers } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
+import server from '../..';
 import { ApplicationModel } from '../../models/ApplicationModel';
 
 /** Lists all server applications. */
@@ -18,6 +19,9 @@ async function getApplications(req: Request, res: Response): Promise<void> {
         }
 
         if (!Verifiers.has(user.data.id)) {
+            server.securityLog.log(
+                `Non-verifier ${user.data.username}#${user.data.discriminator} tried to get applications.`,
+            );
             res.status(401).json('You do not have permission to view this');
             return;
         }
@@ -26,7 +30,8 @@ async function getApplications(req: Request, res: Response): Promise<void> {
 
         res.status(200).json(applications);
     } catch (error) {
-        res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
+        server.errorLog.log('applications', error);
+        res.sendStatus(500);
     }
 }
 

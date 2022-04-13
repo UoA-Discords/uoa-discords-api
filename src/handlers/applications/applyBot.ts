@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
+import server from '../..';
 
 /** Handles a server application made by a bot. */
 // eslint-disable-next-line require-await
 async function applyBot(req: Request, res: Response): Promise<void> {
     try {
-        res.status(501).json('Not yet implemented');
-        return;
+        server.applicationLog.log('Bot application request.');
+        res.sendStatus(501);
     } catch (error) {
-        res.status(500).json(error instanceof Error ? error.message : 'Unknown error occurred');
+        server.errorLog.log('applications/applyBot', error);
+        res.sendStatus(500);
     }
 }
 
