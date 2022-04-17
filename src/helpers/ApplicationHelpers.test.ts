@@ -4,12 +4,18 @@ import ApplicationHelpers from './ApplicationHelpers';
 describe('ApplicationHelpers', () => {
     describe('/validateTagArray', () => {
         it('accepts valid tag numbers', () => {
-            const tags: TagNames[] = [0, 4, 8, 11];
+            const tags: TagNames[] = [TagNames.Arts, TagNames.CreativeArts, TagNames.Club, TagNames.ComputerScience];
             expect(ApplicationHelpers.validateTagArray(tags)).toBe(true);
         });
 
         it('accurately finds invalid tags', () => {
-            const tags: TagNames[] = [0, 4, 8, -1, 29, 11];
+            const tags: TagNames[] = [
+                TagNames.Arts,
+                TagNames.Engineering,
+                TagNames.Research,
+                'fakeTag' as TagNames,
+                'fakeTag2' as TagNames,
+            ];
             const res = ApplicationHelpers.validateTagArray(tags);
 
             expect(res).not.toBe(true);
@@ -18,15 +24,20 @@ describe('ApplicationHelpers', () => {
             }
             expect(res.length).toBe(2);
 
-            expect(res[0]).toContain('-1'); // tag
+            expect(res[0]).toContain('fakeTag'); // tag
             expect(res[0]).toContain('3'); // index
 
-            expect(res[1]).toContain('29'); // tag
+            expect(res[1]).toContain('fakeTag2'); // tag
             expect(res[1]).toContain('4'); // index
         });
 
-        it('handles invalid number inputs', () => {
-            const tags: TagNames[] = [0, 1, 2, 4.5];
+        it('handles invalid input types', () => {
+            const tags: TagNames[] = [
+                TagNames.Arts,
+                TagNames.Business,
+                TagNames.CreativeArts,
+                0 as unknown as TagNames,
+            ];
             const res = ApplicationHelpers.validateTagArray(tags);
 
             expect(res).not.toBe(true);
@@ -35,7 +46,9 @@ describe('ApplicationHelpers', () => {
             }
             expect(res.length).toBe(1);
 
-            expect(res[0]).toContain('4.5'); // tag
+            // tag shouldn't be printed,
+            // since its type isnt a string
+            expect(res[0]).not.toContain('0');
             expect(res[0]).toContain('3'); // index
         });
 
