@@ -1,28 +1,29 @@
+import { GETRoutes, POSTApplicationRoutes, POSTAuthRoutes } from '@uoa-discords/shared-utils';
 import { Router } from 'express';
-import acceptApplication from './handlers/applications/acceptApplication';
-import applyBot from './handlers/applications/applyBot';
-import applyWeb from './handlers/applications/applyWeb';
-import getApplications from './handlers/applications/getApplications';
-import modifyApplicationTags from './handlers/applications/modifyApplicationTags';
-import rejectApplication from './handlers/applications/rejectApplication';
-import getToken from './handlers/auth/getToken';
-import refreshToken from './handlers/auth/refreshToken';
-import revokeToken from './handlers/auth/revokeToken';
+import {
+    acceptApplication,
+    applyBot,
+    applyWeb,
+    getApplications,
+    modifyApplicationTags,
+    rejectApplication,
+} from './handlers/applications';
+import { getToken, refreshToken, revokeToken } from './handlers/auth';
 import getServers from './handlers/servers/getServers';
 
 const router = Router();
 
-router.post('/applications/applyWeb', applyWeb);
-router.post('/applications/applyBot', applyBot);
-router.post('/applications/accept', acceptApplication);
-router.post('/applications/reject', rejectApplication);
-router.post('/applications/modifyTags', modifyApplicationTags);
+router.post(POSTApplicationRoutes.ApplyWeb, applyWeb);
+router.post(POSTApplicationRoutes.ApplyBot, applyBot);
+router.post(POSTApplicationRoutes.Accept, acceptApplication);
+router.post(POSTApplicationRoutes.Reject, rejectApplication);
+router.post(POSTApplicationRoutes.Modify, modifyApplicationTags);
 
-router.get('/applications', getApplications);
-router.get('/servers', getServers);
+router.get(GETRoutes.GetApplications, getApplications);
+router.get(GETRoutes.GetServers, getServers);
 
-router.post('/auth/getToken', getToken);
-router.post('/auth/refreshToken', refreshToken);
-router.post('/auth/revokeToken', revokeToken);
+router.post(POSTAuthRoutes.GetToken, getToken);
+router.post(POSTAuthRoutes.RefreshToken, refreshToken);
+router.post(POSTAuthRoutes.RevokeToken, revokeToken);
 
 export default router;
