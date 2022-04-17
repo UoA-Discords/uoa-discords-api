@@ -1,22 +1,16 @@
 import { Schema, model } from 'mongoose';
-import RegisteredServer from '../types/RegisteredServer';
+import { _RegisteredServer } from '../types/DatabaseObjects';
 
-export const RegisteredServerSchema = new Schema<RegisteredServer>({
+export const RegisteredServerSchema = new Schema<_RegisteredServer>({
     _id: String,
-    guildId: String,
-    inviteObject: {},
-    tags: [Number],
-    addedVia: String,
-    appliedAt: {
-        type: Number,
-        default: Date.now,
-    },
+    inviteCode: String,
+    tags: [String],
+    addedAt: Number,
     addedBy: {},
     approvedBy: {},
-    approvedAt: {
-        type: Number,
-        default: Date.now,
-    },
+    approvedAt: Number,
+    bot: {},
+    memberCountHistory: [Number],
 });
 
 export const RegisteredServerModel = model('registered_servers', RegisteredServerSchema);

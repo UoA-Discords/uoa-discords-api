@@ -1,10 +1,13 @@
-import { DiscordAPI, Verifiers } from '@uoa-discords/shared-utils';
+import { DiscordAPI, POSTApplicationRoutes, RejectApplicationRequest, Verifiers } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
-import server from '../..';
+import ServerLogger from '../../classes/ServerLogger';
 import { ApplicationModel } from '../../models/ApplicationModel';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
 
-async function rejectApplication(req: Request, res: Response): Promise<void> {
+async function rejectApplication(
+    req: Request<undefined, undefined, RejectApplicationRequest>,
+    res: Response,
+): Promise<void> {
     try {
         const { access_token, guildId } = req.body;
         if (typeof access_token !== 'string') {
@@ -25,10 +28,8 @@ async function rejectApplication(req: Request, res: Response): Promise<void> {
         }
 
         if (!Verifiers.has(user.data.id)) {
-            server.securityLog.log(
-                `Non-verifier ${user.data.username}#${user.data.discriminator} tried to reject application for ${guildId}.`,
-            );
-            res.status(401).json('You do not have permission to view this');
+            ServerLogger.logSecurity(POSTApplicationRoutes.Reject, user.data);
+            res.sendStatus(401);
             return;
         }
 
@@ -47,13 +48,12 @@ async function rejectApplication(req: Request, res: Response): Promise<void> {
             res.status(409).json('This server is already registered, the application has been deleted.');
             return;
         }
-        server.auditLog.log(
-            `${user.data.username}#${user.data.discriminator} rejected application for ${applicationInQuestion.invite.guild?.name}.`,
-        );
+
+        ServerLogger.applications.logRejected(applicationInQuestion, user.data);
 
         res.sendStatus(200);
     } catch (error) {
-        server.errorLog.log('applications/reject', error);
+        ServerLogger.logError(POSTApplicationRoutes.Reject, error);
         res.sendStatus(500);
     }
 }

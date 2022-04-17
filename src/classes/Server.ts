@@ -3,7 +3,6 @@ import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 import express, { Express } from 'express';
 import router from '../routes';
 import mongoose from 'mongoose';
-import Logger from './Logger';
 
 interface ServerProps {
     port: number;
@@ -32,37 +31,6 @@ export default class Server {
     });
 
     private _app: Express = express();
-
-    public applicationLog: Logger = new Logger({
-        name: 'applications',
-        overwrite: true,
-        description: 'Logs application created events.',
-    });
-
-    public auditLog: Logger = new Logger({
-        name: 'audit',
-        overwrite: true,
-        description: 'Logs verifier events like accept, reject, blacklist, opt-out, and change tags.',
-    });
-
-    public authLog: Logger = new Logger({
-        name: 'auth',
-        overwrite: true,
-        description: 'Logs auth events like login, logout, and refresh.',
-    });
-
-    public errorLog: Logger = new Logger({
-        name: 'error',
-        overwrite: true,
-        description: 'Logs unhandled, unexpected, and/or unknown server errors.',
-    });
-
-    public securityLog: Logger = new Logger({
-        name: 'security',
-        overwrite: true,
-        description:
-            'Logs unexpected (but handled) requests that should not happen unless a third-party client is being used.',
-    });
 
     public constructor({ port, mongoURI }: ServerProps) {
         this._app.use(Server.LIMITER);

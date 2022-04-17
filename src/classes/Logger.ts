@@ -4,7 +4,6 @@ export interface LoggerParams {
     name: string;
     overwrite?: boolean;
     path?: string | Logger;
-    description: string;
 }
 
 /**
@@ -21,7 +20,7 @@ export default class Logger {
     /** Full file path of this log file, e.g. `logs/foo/bar/filename.log` */
     private readonly _logFile: string;
 
-    public constructor({ name, overwrite, path, description }: LoggerParams) {
+    public constructor({ name, overwrite = true, path }: LoggerParams) {
         Logger.makeFolder(Logger.GLOBAL_LOG_FOLDER);
         this.basePath = Logger.getBasePath(path);
         Logger.makeParentFolders(this.basePath);
@@ -33,20 +32,54 @@ export default class Logger {
         }
 
         if (!existsSync(this._logFile)) {
-            writeFileSync(this._logFile, `${name[0].toUpperCase() + name.slice(1)} Log\n${description}\n\n`, {
-                encoding: 'utf-8',
-            });
+            writeFileSync(this._logFile, '');
+        }
+    }
+
+    private parseToString(data: unknown): string {
+        switch (typeof data) {
+            case 'string':
+                return data;
+            case 'boolean':
+                return data ? 'true' : 'false';
+            case 'bigint':
+                return data.toString();
+            case 'undefined':
+                return 'undefined';
+            case 'function':
+            case 'number':
+            case 'symbol':
+                return data.toString();
+            case 'object':
+                break;
+        }
+
+        if (data === null) return 'null';
+        if (Array.isArray(data)) return data.map((e) => this.parseToString(e)).join('\n');
+
+        try {
+            return JSON.stringify(data, undefined, 2);
+        } catch (error) {
+            console.log(error);
+            return `${data}`;
         }
     }
 
     public log(...messages: unknown[]): void {
-        const timestamp = `[${new Date().toLocaleString('en-NZ')}] `;
-        const output: string[] = messages.map((e, i) => {
-            if (i === 0) return `${timestamp}${e}\n`;
-            return `${' '.repeat(timestamp.length)}${e}\n`;
-        });
+        if (!messages.length) throw new Error('Cannot log nothing');
 
-        appendFileSync(this._logFile, output.join(''), { encoding: 'utf-8' });
+        const timestamp = `[${new Date().toLocaleString('en-NZ')}] `;
+        const output: string[] = messages.map((e) => this.parseToString(e));
+        output[0] = timestamp + output[0];
+
+        for (let i = 1, len = output.length; i < len; i++) {
+            output[i] = output[i]
+                .split('\n')
+                .map((e) => '  ' + e)
+                .join('\n');
+        }
+
+        appendFileSync(this._logFile, output.join('\n') + '\n', { encoding: 'utf-8' });
     }
 
     /**

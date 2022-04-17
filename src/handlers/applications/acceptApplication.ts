@@ -1,11 +1,14 @@
-import { DiscordAPI, Verifiers } from '@uoa-discords/shared-utils';
+import { AcceptApplicationRequest, DiscordAPI, POSTApplicationRoutes, Verifiers } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
-import server from '../..';
+import ServerLogger from '../../classes/ServerLogger';
 import { ApplicationModel } from '../../models/ApplicationModel';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
-import RegisteredServer from '../../types/RegisteredServer';
+import { _RegisteredServer } from '../../types/DatabaseObjects';
 
-async function acceptApplication(req: Request, res: Response): Promise<void> {
+async function acceptApplication(
+    req: Request<unknown, unknown, AcceptApplicationRequest>,
+    res: Response,
+): Promise<void> {
     try {
         const { access_token, guildId } = req.body;
         if (typeof access_token !== 'string') {
@@ -26,10 +29,8 @@ async function acceptApplication(req: Request, res: Response): Promise<void> {
         }
 
         if (!Verifiers.has(user.data.id)) {
-            server.securityLog.log(
-                `Non-verifier ${user.data.username}#${user.data.discriminator} tried to accept application for ${guildId}.`,
-            );
-            res.status(401).json('You do not have permission to view this');
+            ServerLogger.logSecurity(POSTApplicationRoutes.Accept, user.data);
+            res.sendStatus(401);
             return;
         }
 
@@ -49,27 +50,24 @@ async function acceptApplication(req: Request, res: Response): Promise<void> {
             return;
         }
 
-        const newServer: RegisteredServer = {
+        const newServer: _RegisteredServer = {
             _id: guildId,
-            inviteObject: applicationInQuestion.invite,
-            addedBy: applicationInQuestion.createdBy,
-            approvedBy: user.data,
-            guildId,
+            inviteCode: applicationInQuestion.inviteCode,
             tags: applicationInQuestion.tags,
-            addedVia: applicationInQuestion.source,
-            appliedAt: applicationInQuestion.createdAt,
+            addedAt: applicationInQuestion.addedAt,
+            addedBy: applicationInQuestion.addedBy,
+            approvedBy: user.data,
             approvedAt: Date.now(),
+            bot: applicationInQuestion.bot,
+            memberCountHistory: [],
         };
 
         await RegisteredServerModel.create(newServer);
-
-        server.auditLog.log(
-            `${user.data.username}#${user.data.discriminator} approved application for ${applicationInQuestion.invite.guild?.name}.`,
-        );
+        ServerLogger.applications.logAccepted(newServer);
 
         res.sendStatus(201);
     } catch (error) {
-        server.errorLog.log('applications/accept', error);
+        ServerLogger.logError(POSTApplicationRoutes.Accept, error);
         res.sendStatus(500);
     }
 }
