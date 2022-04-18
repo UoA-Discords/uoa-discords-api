@@ -34,12 +34,8 @@ export default class Server {
 
     public constructor({ port, mongoURI }: ServerProps) {
         this._app.use(Server.LIMITER);
-        this._app.use(cors(Server.CORS_OPTIONS));
-
-        this._app.use((_, res, next) => {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            next();
-        });
+        // this._app.use(cors(Server.CORS_OPTIONS));
+        this._app.use(cors());
 
         this._app.use(express.json());
 
