@@ -1,5 +1,4 @@
-import { DiscordAPI, GETRoutes, Invite } from '@uoa-discords/shared-utils';
-import { ServerWithInviteInfo } from '@uoa-discords/shared-utils/dist/types/Types/ServerTypes';
+import { DiscordAPI, GETRoutes, Invite, ServerWithInviteInfo } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
 import Caches from '../../classes/Caches';
 import ServerLogger from '../../classes/ServerLogger';
