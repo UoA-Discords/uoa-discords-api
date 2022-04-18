@@ -33,7 +33,7 @@
         "typescript": "^4.6.3"
     },
     "dependencies": {
-        "@uoa-discords/shared-utils": "^2.1.2",
+        "@uoa-discords/shared-utils": "^2.1.4",
         "axios": "^0.26.1",
         "cors": "^2.8.5",
         "express": "^4.17.3",
