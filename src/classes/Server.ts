@@ -1,4 +1,4 @@
-import cors, { CorsOptions } from 'cors';
+import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 import express, { Express } from 'express';
 import router from '../routes';
@@ -34,8 +34,13 @@ export default class Server {
 
     public constructor({ port, mongoURI }: ServerProps) {
         this._app.use(Server.LIMITER);
-        // this._app.use(cors(Server.CORS_OPTIONS));
-        this._app.use(cors());
+        this._app.use(cors(Server.CORS_OPTIONS));
+
+        this._app.use((_, res, next) => {
+            res.setHeader('Acess-Control-Allow-Origin', '*');
+            next();
+        });
+
         this._app.use(express.json());
 
         this._app.get('/', (_, res) => {
