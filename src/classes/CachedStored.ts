@@ -2,14 +2,14 @@ export default class CachedStorage<T> {
     private _items: Record<string, { data: T; timeout: NodeJS.Timeout }> = {};
 
     /** Duration to store items, in seconds. */
-    private _duration: number = 5 * 60;
+    private _duration: number;
 
     /**
      * Cached item storer.
      *
-     * @param {number} duration - Duration to store items, in seconds.
+     * @param {number} duration - Duration to store items, in seconds. Default is 5 minutes.
      */
-    public constructor(duration: number) {
+    public constructor(duration: number = 5 * 60) {
         this._duration = duration;
     }
 
