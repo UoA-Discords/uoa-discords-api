@@ -1,6 +1,6 @@
-import { DiscordAPI } from '@uoa-discords/shared-utils';
+import { POSTAuthRoutes } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
-import server from '../..';
+import ServerLogger from '../../classes/ServerLogger';
 import AuthHelpers from '../../helpers/AuthHelpers';
 
 /**
@@ -12,25 +12,18 @@ async function refreshToken(req: Request, res: Response): Promise<void> {
     try {
         const { refresh_token } = req.body;
         if (typeof refresh_token !== 'string') {
-            res.status(400).json(`body "refresh_token" must be a string (got ${typeof refresh_token})`);
+            res.status(400).json(`Body 'refresh_token' must be a string (got ${typeof refresh_token})`);
             return;
         }
 
         const apiResponse = await AuthHelpers.refreshToken(refresh_token);
         if (apiResponse.success) {
-            DiscordAPI.getUserInfo(apiResponse.data.access_token).then((res) => {
-                if (res.success) {
-                    server.authLog.log(`${res.data.username}#${res.data.discriminator} refreshed session`);
-                } else {
-                    server.authLog.log('Failed to get user data on refresh.', res.error.response?.data);
-                }
-            });
+            ServerLogger.sessions.logRefresh(apiResponse.data.access_token);
             res.status(200).json(apiResponse.data);
         } else throw apiResponse.error;
-
         return;
     } catch (error) {
-        server.errorLog.log('/auth/refreshToken', error);
+        ServerLogger.logError(POSTAuthRoutes.RefreshToken, error);
         res.sendStatus(500);
     }
 }

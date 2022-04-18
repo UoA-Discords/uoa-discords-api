@@ -1,41 +1,38 @@
 import {
     BlacklistedGuilds,
+    BlacklistedUsers,
     DiscordAPI,
-    HelperAPI,
+    GuildRequirements,
     OptOutGuilds,
+    POSTApplicationRoutes,
     Verifiers,
-    WebApplication,
+    WebApplicationRequest,
 } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
-import server from '../..';
+import ServerLogger from '../../classes/ServerLogger';
 import ApplicationHelpers from '../../helpers/ApplicationHelpers';
+import AuthHelpers from '../../helpers/AuthHelpers';
 import { ApplicationModel } from '../../models/ApplicationModel';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
-import { ServerApplication } from '../../types/ServerApplication';
+import { _ApplicationServer } from '../../types/DatabaseObjects';
 
 /** Handles a server application made from the website. */
-async function applyWeb(req: Request, res: Response): Promise<void> {
+async function applyWeb(req: Request<undefined, undefined, WebApplicationRequest>, res: Response): Promise<void> {
     try {
-        const { inviteCode, authToken, tags, dryRun }: WebApplication = req.body;
+        const { inviteCode, authToken, tags, dryRun } = req.body;
 
         if (typeof inviteCode !== 'string') {
-            res.status(400).json(`body "inviteCode" must be a string (got ${typeof inviteCode})`);
+            res.status(400).json(`Body 'inviteCode' must be a string (got ${typeof inviteCode})`);
             return;
         }
 
         if (typeof authToken !== 'string') {
-            res.status(400).json(`body "authToken" must be a string (got ${typeof authToken})`);
+            res.status(400).json(`Body 'authToken' must be a string (got ${typeof authToken})`);
             return;
         }
 
         if (!Array.isArray(tags)) {
-            res.status(400).json(`body "tags" must be an array (got ${typeof tags})`);
-            return;
-        }
-
-        if (tags.length && tags.some((tag) => typeof tag !== 'number')) {
-            console.log(tags);
-            res.status(400).json('body "tags" must be an array of integers (found non-integers)');
+            res.status(400).json(`Body 'tags' must be an array (got ${typeof tags})`);
             return;
         }
 
@@ -76,9 +73,9 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
         }
 
         // guild too small
-        if (invite.data.approximate_member_count < HelperAPI.MIN_ACCEPTABLE_MEMBERS) {
+        if (invite.data.approximate_member_count < GuildRequirements.minMemberCount) {
             res.status(400).json(
-                `Member count must be greater than or equal to ${HelperAPI.MIN_ACCEPTABLE_MEMBERS} (got ${invite.data.approximate_member_count})`,
+                `Member count must be greater than or equal to ${GuildRequirements.minMemberCount} (got ${invite.data.approximate_member_count})`,
             );
             return;
         }
@@ -116,6 +113,13 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
             return;
         }
 
+        // user blacklisted
+        if (BlacklistedUsers.has(user.data.id)) {
+            AuthHelpers.revokeToken(authToken);
+            res.status(400).json('You are blacklisted');
+            return;
+        }
+
         // guild opt-out
         if (OptOutGuilds.has(invite.data.guild.id)) {
             res.status(400).json('That guild has opted out of the registry');
@@ -134,22 +138,20 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
             }
         }
 
+        const newApplication: _ApplicationServer = {
+            _id: invite.data.guild.id,
+            inviteCode: invite.data.code,
+            tags,
+            addedAt: Date.now(),
+            addedBy: user.data,
+            bot: null,
+        };
+
         if (!dryRun) {
-            const newApplication: ServerApplication = {
-                _id: invite.data.guild.id,
-                source: 'web',
-                createdAt: Date.now(),
-                createdBy: user.data,
-                invite: invite.data,
-                tags,
-            };
-
             await ApplicationModel.create(newApplication);
-
-            server.applicationLog.log(
-                `${user.data.username}#${user.data.discriminator} created an application for ${invite.data.guild.name}.`,
-            );
         }
+
+        ServerLogger.applications.logCreated(newApplication, invite.data.guild, !!dryRun);
 
         const output = {
             message: `Successfully created an application for ${invite.data.guild.name} (${invite.data.code})`,
@@ -158,7 +160,7 @@ async function applyWeb(req: Request, res: Response): Promise<void> {
 
         res.status(201).json(output);
     } catch (error) {
-        server.errorLog.log('applications/applyWeb', error);
+        ServerLogger.logError(POSTApplicationRoutes.ApplyWeb, error);
         res.sendStatus(500);
     }
 }

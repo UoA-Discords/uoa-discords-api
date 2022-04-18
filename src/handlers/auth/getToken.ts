@@ -1,6 +1,6 @@
-import { DiscordAPI } from '@uoa-discords/shared-utils';
+import { POSTAuthRoutes } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
-import server from '../..';
+import ServerLogger from '../../classes/ServerLogger';
 import AuthHelpers from '../../helpers/AuthHelpers';
 
 /**
@@ -12,32 +12,22 @@ async function getToken(req: Request, res: Response): Promise<void> {
     try {
         const { code, redirect_uri } = req.body;
         if (typeof code !== 'string') {
-            res.status(400).json(`body "code" must be a string (got ${typeof code})`);
+            res.status(400).json(`Body 'code' must be a string (got ${typeof code})`);
             return;
         }
 
         if (typeof redirect_uri !== 'string') {
-            res.status(400).json(`body "redirect_uri" must be a string (got ${typeof redirect_uri})`);
+            res.status(400).json(`Body 'redirect_uri' must be a string (got ${typeof redirect_uri})`);
             return;
         }
 
         const apiResponse = await AuthHelpers.getToken(code, redirect_uri);
         if (apiResponse.success) {
-            DiscordAPI.getUserInfo(apiResponse.data.access_token).then((res) => {
-                if (res.success) {
-                    server.authLog.log(`${res.data.username}#${res.data.discriminator} logged in`);
-                } else {
-                    server.authLog.log('Failed to get user data on login.', res.error.response?.data);
-                }
-            });
-
+            ServerLogger.sessions.logIn(apiResponse.data.access_token);
             res.status(200).json(apiResponse.data);
-        } else {
-            server.authLog.log('Failed to login.', apiResponse.error.response?.data);
-            throw apiResponse.error;
-        }
+        } else throw apiResponse.error;
     } catch (error) {
-        server.errorLog.log('auth/getToken', error);
+        ServerLogger.logError(POSTAuthRoutes.GetToken, error);
         res.sendStatus(500);
     }
 }
