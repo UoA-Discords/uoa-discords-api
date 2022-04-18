@@ -1,4 +1,4 @@
-import cors, { CorsOptions, CorsOptionsDelegate } from 'cors';
+import cors, { CorsOptions } from 'cors';
 import rateLimit, { RateLimitRequestHandler } from 'express-rate-limit';
 import express, { Express } from 'express';
 import router from '../routes';
@@ -37,7 +37,7 @@ export default class Server {
         this._app.use(cors(Server.CORS_OPTIONS));
 
         this._app.use((_, res, next) => {
-            res.setHeader('Acess-Control-Allow-Origin', '*');
+            res.setHeader('Access-Control-Allow-Origin', '*');
             next();
         });
 
