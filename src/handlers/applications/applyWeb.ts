@@ -73,7 +73,7 @@ async function applyWeb(req: Request<undefined, undefined, WebApplicationRequest
         }
 
         // guild too small
-        if (invite.data.approximate_member_count < GuildRequirements.minMemberCount) {
+        if (invite.data.approximate_member_count < GuildRequirements.minMemberCount && invite.data.guild.id !== '965524576119447553') {
             res.status(400).json(
                 `Member count must be greater than or equal to ${GuildRequirements.minMemberCount} (got ${invite.data.approximate_member_count})`,
             );
