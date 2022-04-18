@@ -16,6 +16,7 @@ export default class Server {
         'https://uoa-discords.com',
     ]);
 
+    /** FIXME: using this doesn't work on some Firefox versions. */
     private static readonly CORS_OPTIONS: CorsOptions = {
         origin: (origin, callback) => {
             if (!origin || Server.WHITELIST.has(origin)) callback(null, true);

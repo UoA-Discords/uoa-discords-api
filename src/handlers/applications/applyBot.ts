@@ -141,7 +141,7 @@ async function applyBot(req: Request<undefined, undefined, BotApplicationRequest
         };
 
         if (!dryRun) {
-            await ApplicationModel.create(newApplication);
+            // await ApplicationModel.create(newApplication);
         }
 
         ServerLogger.applications.logCreated(newApplication, invite.data.guild, !!dryRun, verifiedBot.id);
