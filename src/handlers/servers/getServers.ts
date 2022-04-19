@@ -19,7 +19,7 @@ async function getCacheOrAddTo(id: string, inviteCode: string): Promise<Invite |
 
 async function getServers(req: Request, res: Response): Promise<void> {
     try {
-        const servers = await RegisteredServerModel.find({});
+        const servers = await RegisteredServerModel.find();
 
         const allServers = await Promise.all(servers.map((e) => getCacheOrAddTo(e._id, e.inviteCode)));
 
@@ -28,7 +28,21 @@ async function getServers(req: Request, res: Response): Promise<void> {
         for (let i = 0, len = allServers.length; i < len; i++) {
             const invite = allServers[i];
             if (invite !== null) {
-                validServers.push({ ...servers[i], invite: invite });
+                // we don't use spread syntax here due to weird mongodb object nesting
+                const payload: ServerWithInviteInfo = {
+                    invite,
+                    _id: servers[i]._id,
+                    inviteCode: servers[i].inviteCode,
+                    tags: servers[i].tags,
+                    addedAt: servers[i].addedAt,
+                    addedBy: servers[i].addedBy,
+                    approvedBy: servers[i].approvedBy,
+                    approvedAt: servers[i].approvedAt,
+                    bot: servers[i].bot,
+                    memberCountHistory: servers[i].memberCountHistory,
+                };
+
+                validServers.push(payload);
             }
         }
 
