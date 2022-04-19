@@ -1,14 +1,15 @@
 import {
     APIResponse,
+    ApplicationServer,
     CombinedRoutes,
     DiscordAPI,
     Guild,
     POSTApplicationRoutes,
     POSTAuthRoutes,
+    RegisteredServer,
     TagNames,
     User,
 } from '@uoa-discords/shared-utils';
-import { _ApplicationServer, _RegisteredServer } from '../types/DatabaseObjects';
 import Logger from './Logger';
 
 abstract class ApplicationLogger {
@@ -18,9 +19,9 @@ abstract class ApplicationLogger {
     private static readonly applicationsRejectedLog = new Logger({ name: 'rejected', path: 'applications' });
     private static readonly applicationsModifiedLog = new Logger({ name: 'modified', path: 'applications' });
 
-    public static logCreated(created: _ApplicationServer, guild: Guild, dryRun: boolean): void;
-    public static logCreated(created: _ApplicationServer, guild: Guild, dryRun: boolean, botId: string): void;
-    public static logCreated(created: _ApplicationServer, guild: Guild, dryRun: boolean, botId?: string): void {
+    public static logCreated(created: ApplicationServer, guild: Guild, dryRun: boolean): void;
+    public static logCreated(created: ApplicationServer, guild: Guild, dryRun: boolean, botId: string): void;
+    public static logCreated(created: ApplicationServer, guild: Guild, dryRun: boolean, botId?: string): void {
         const { addedBy: user, inviteCode } = created;
 
         if (botId) {
@@ -37,7 +38,7 @@ abstract class ApplicationLogger {
         this.webApplicationsCreatedLog.log(...msg);
     }
 
-    public static async logAccepted(accepted: _RegisteredServer): Promise<void> {
+    public static async logAccepted(accepted: RegisteredServer): Promise<void> {
         const inviteQuery = await DiscordAPI.getInviteData(accepted.inviteCode);
 
         if (!inviteQuery.success) {
@@ -74,7 +75,7 @@ abstract class ApplicationLogger {
         this.applicationsAcceptedLog.log(...msg);
     }
 
-    public static async logRejected(rejected: _ApplicationServer, user: User): Promise<void> {
+    public static async logRejected(rejected: ApplicationServer, user: User): Promise<void> {
         const inviteQuery = await DiscordAPI.getInviteData(rejected.inviteCode);
 
         if (!inviteQuery.success) {
@@ -111,7 +112,7 @@ abstract class ApplicationLogger {
         this.applicationsRejectedLog.log(...msg);
     }
 
-    public static async logModified(modified: _ApplicationServer, user: User, oldTags: TagNames[]): Promise<void> {
+    public static async logModified(modified: ApplicationServer, user: User, oldTags: TagNames[]): Promise<void> {
         const inviteQuery = await DiscordAPI.getInviteData(modified.inviteCode);
 
         if (!inviteQuery.success) {

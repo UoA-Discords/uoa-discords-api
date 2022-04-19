@@ -1,4 +1,5 @@
 import {
+    ApplicationServer,
     BlacklistedGuilds,
     BlacklistedUsers,
     BotApplicationRequest,
@@ -15,7 +16,6 @@ import ApplicationHelpers from '../../helpers/ApplicationHelpers';
 import AuthHelpers from '../../helpers/AuthHelpers';
 import { ApplicationModel } from '../../models/ApplicationModel';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
-import { _ApplicationServer } from '../../types/DatabaseObjects';
 
 /** Handles a server application made by a bot. */
 async function applyBot(req: Request<undefined, undefined, BotApplicationRequest>, res: Response): Promise<void> {
@@ -131,7 +131,7 @@ async function applyBot(req: Request<undefined, undefined, BotApplicationRequest
             }
         }
 
-        const newApplication: _ApplicationServer = {
+        const newApplication: ApplicationServer = {
             _id: invite.data.guild.id,
             inviteCode: invite.data.code,
             tags,
