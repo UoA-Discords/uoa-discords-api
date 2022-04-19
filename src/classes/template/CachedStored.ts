@@ -1,3 +1,4 @@
+/** Cached item storer, stores a record/dictionary of values in memory. */
 export default class CachedStorage<T> {
     private _items: Record<string, { data: T; timeout: NodeJS.Timeout }> = {};
 
