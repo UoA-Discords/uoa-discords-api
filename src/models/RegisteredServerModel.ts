@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { _RegisteredServer } from '../types/DatabaseObjects';
+import { RegisteredServer } from '@uoa-discords/shared-utils';
 
-export const RegisteredServerSchema = new Schema<_RegisteredServer>({
+export const RegisteredServerSchema = new Schema<RegisteredServer>({
     _id: String,
     inviteCode: String,
     tags: [String],

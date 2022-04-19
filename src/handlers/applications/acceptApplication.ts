@@ -1,9 +1,14 @@
-import { AcceptApplicationRequest, DiscordAPI, POSTApplicationRoutes, Verifiers } from '@uoa-discords/shared-utils';
+import {
+    AcceptApplicationRequest,
+    DiscordAPI,
+    POSTApplicationRoutes,
+    RegisteredServer,
+    Verifiers,
+} from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
 import ServerLogger from '../../classes/ServerLogger';
 import { ApplicationModel } from '../../models/ApplicationModel';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
-import { _RegisteredServer } from '../../types/DatabaseObjects';
 
 async function acceptApplication(
     req: Request<unknown, unknown, AcceptApplicationRequest>,
@@ -50,7 +55,7 @@ async function acceptApplication(
             return;
         }
 
-        const newServer: _RegisteredServer = {
+        const newServer: RegisteredServer = {
             _id: guildId,
             inviteCode: applicationInQuestion.inviteCode,
             tags: applicationInQuestion.tags,
