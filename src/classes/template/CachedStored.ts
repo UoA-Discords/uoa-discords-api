@@ -22,7 +22,12 @@ export default class CachedStorage<T> {
         this._duration = duration;
         if (fileName) {
             this._dataManager = new DataManager(`data/caches/${fileName}.json`, JSON.stringify({}, undefined, 4));
-            this._items = JSON.parse(this._dataManager.data);
+
+            const storedDataValues = JSON.parse(this._dataManager.data);
+
+            for (const key in storedDataValues) {
+                this.addItem(key, storedDataValues[key]);
+            }
         }
     }
 
@@ -52,15 +57,9 @@ export default class CachedStorage<T> {
         this.save();
     }
 
-    /**
-     * Removes an item from the cache.
-     *
-     * @throws Throws an error if the specified key did not exist in the cache.
-     */
+    /** Removes an item from the cache. */
     public removeItem(key: string, withoutSaving: boolean = false): void {
-        if (!this._items[key]) {
-            throw new Error(`Key ${key} does not exist in this cache`);
-        }
+        if (!this._items[key]) return;
 
         clearTimeout(this._items[key].timeout);
         delete this._items[key];
@@ -70,7 +69,12 @@ export default class CachedStorage<T> {
 
     public save(): void {
         if (this._dataManager) {
-            this._dataManager.data = JSON.stringify(this._items, undefined, 4);
+            const payload: Record<string, T> = {};
+            for (const key in this._items) {
+                payload[key] = this._items[key].data;
+            }
+
+            this._dataManager.data = JSON.stringify(payload, undefined, 4);
         }
     }
 }
