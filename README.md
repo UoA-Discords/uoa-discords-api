@@ -29,6 +29,7 @@ Run the scripts using `yarn <script>` or `npm run <script>`
 
 -   `typecheck` - Runs Typescript compiler typecheck.
 -   `lint` - Runs eslint (and Prettier) linting checks.
+-   `test` - Runs jest tests.
 -   `check-all` - Runs all of the above (yarn only).
 -   `build` - Compiles into bundled JavaScript.
 -   `dev` - Runs with hot-reloading.
