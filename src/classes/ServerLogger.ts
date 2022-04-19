@@ -10,7 +10,7 @@ import {
     TagNames,
     User,
 } from '@uoa-discords/shared-utils';
-import Logger from './Logger';
+import Logger from './template/Logger';
 
 abstract class ApplicationLogger {
     private static readonly webApplicationsCreatedLog = new Logger({ name: 'created-web', path: 'applications' });
