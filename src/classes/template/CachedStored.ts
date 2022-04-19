@@ -5,11 +5,7 @@ export default class CachedStorage<T> {
     /** Duration to store items, in seconds. */
     private _duration: number;
 
-    /**
-     * Cached item storer.
-     *
-     * @param {number} duration - Duration to store items, in seconds. Default is 5 minutes.
-     */
+    /** @param {number} duration - Duration to store items, in seconds. Default is 5 minutes. */
     public constructor(duration: number = 5 * 60) {
         this._duration = duration;
     }
