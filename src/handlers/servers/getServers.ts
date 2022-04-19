@@ -48,7 +48,6 @@ async function getServers(req: Request, res: Response): Promise<void> {
 
         res.status(200).json(validServers);
     } catch (error) {
-        console.log(error);
         ServerLogger.logError(GETRoutes.GetServers, error);
         res.sendStatus(500);
     }
