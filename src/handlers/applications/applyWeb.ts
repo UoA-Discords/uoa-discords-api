@@ -86,13 +86,6 @@ async function applyWeb(req: Request<undefined, undefined, WebApplicationRequest
             return;
         }
 
-        // user not in guild
-        const guildIdSet = new Set<string>(guilds.data.map(({ id }) => id));
-        if (!guildIdSet.has(invite.data.guild.id)) {
-            res.status(400).json(`You must be in ${invite.data.guild.name}`);
-            return;
-        }
-
         // guild already applied
         const existingApplication = await ApplicationModel.findById(invite.data.guild.id);
         if (existingApplication) {
