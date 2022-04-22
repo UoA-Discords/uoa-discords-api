@@ -3,4 +3,6 @@ import CachedStorage from './template/CachedStored';
 
 export default abstract class Caches {
     public static readonly inviteCache = new CachedStorage<Invite>({ fileName: 'invites' });
+
+    public static readonly likesCache = new CachedStorage<string[]>({});
 }
