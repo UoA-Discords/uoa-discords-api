@@ -51,7 +51,6 @@ async function addLike(req: Request<undefined, undefined, AddLikeRequest>, res: 
                 return;
             }
             user.guildsLiked.push(guildId);
-            res.sendStatus(200);
             await UserModel.findByIdAndUpdate(discordUser.data.id, user, { new: true });
         } else {
             // make new database user
