@@ -65,6 +65,7 @@ async function acceptApplication(
             approvedAt: Date.now(),
             bot: applicationInQuestion.bot,
             memberCountHistory: [],
+            likes: 0,
         };
 
         await RegisteredServerModel.create(newServer);
