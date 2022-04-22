@@ -2,6 +2,7 @@ import { DiscordAPI, POSTUserRoutes, RemoveLikeRequest } from '@uoa-discords/sha
 import { Request, Response } from 'express';
 import Caches from '../../classes/Caches';
 import ServerLogger from '../../classes/ServerLogger';
+import { RegisteredServerModel } from '../../models/RegisteredServerModel';
 import { UserModel } from '../../models/UserModel';
 
 async function removeLike(req: Request<undefined, undefined, RemoveLikeRequest>, res: Response): Promise<void> {
@@ -24,10 +25,18 @@ async function removeLike(req: Request<undefined, undefined, RemoveLikeRequest>,
             return;
         }
 
-        const user = await UserModel.findById(discordUser.data.id);
+        const [user, server] = await Promise.all([
+            UserModel.findById(discordUser.data.id),
+            RegisteredServerModel.findById(guildId),
+        ]);
 
         if (!user) {
-            res.status(401).json("You don't have any likes registered");
+            res.status(400).json("You don't have any likes registered");
+            return;
+        }
+
+        if (!server) {
+            res.status(400).json('That guild is not registered');
             return;
         }
 
@@ -40,7 +49,12 @@ async function removeLike(req: Request<undefined, undefined, RemoveLikeRequest>,
 
         user.guildsLiked.splice(index, 1);
 
-        await UserModel.findByIdAndUpdate(discordUser.data.id, user, { new: true });
+        if (server.likes) server.likes--;
+
+        await Promise.all([
+            UserModel.findByIdAndUpdate(user._id, user, { new: true }),
+            RegisteredServerModel.findByIdAndUpdate(server._id, server, { new: true }),
+        ]);
 
         Caches.likesCache.removeItem(discordUser.data.id);
         res.sendStatus(200);

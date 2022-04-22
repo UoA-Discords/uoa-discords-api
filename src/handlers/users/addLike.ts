@@ -5,15 +5,6 @@ import ServerLogger from '../../classes/ServerLogger';
 import { RegisteredServerModel } from '../../models/RegisteredServerModel';
 import { UserModel } from '../../models/UserModel';
 
-async function getHasGuild(guildId: string): Promise<boolean> {
-    const fromInviteCache = Caches.inviteCache.getItem(guildId);
-    if (fromInviteCache) return true;
-
-    const fromDB = await RegisteredServerModel.findById(guildId);
-
-    return !!fromDB;
-}
-
 async function addLike(req: Request<undefined, undefined, AddLikeRequest>, res: Response): Promise<void> {
     try {
         const { access_token, guildId } = req.body;
@@ -27,22 +18,21 @@ async function addLike(req: Request<undefined, undefined, AddLikeRequest>, res: 
             return;
         }
 
-        const [discordUser, validGuild] = await Promise.all([
-            DiscordAPI.getUserInfo(access_token),
-            getHasGuild(guildId),
-        ]);
+        const discordUser = await DiscordAPI.getUserInfo(access_token);
 
         if (!discordUser.success) {
             res.status(401).json('Invalid access token');
             return;
         }
+        const [user, server] = await Promise.all([
+            UserModel.findById(discordUser.data.id),
+            RegisteredServerModel.findById(guildId),
+        ]);
 
-        if (!validGuild) {
-            res.status(401).json('That guild is not registered');
+        if (!server) {
+            res.status(400).json('That guild is not registered');
             return;
         }
-
-        const user = await UserModel.findById(discordUser.data.id);
 
         if (user) {
             // modify existing database user
@@ -60,6 +50,10 @@ async function addLike(req: Request<undefined, undefined, AddLikeRequest>, res: 
             };
             await UserModel.create(newUser);
         }
+
+        if (server.likes !== undefined) server.likes++;
+        else server.likes = 1;
+        await RegisteredServerModel.findByIdAndUpdate(server._id, server, { new: true });
 
         Caches.likesCache.removeItem(discordUser.data.id);
         res.sendStatus(200);
