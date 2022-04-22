@@ -1,10 +1,10 @@
-import { AddLikeRequest, DiscordAPI, POSTUserRoutes } from '@uoa-discords/shared-utils';
+import { DiscordAPI, POSTUserRoutes, RemoveLikeRequest } from '@uoa-discords/shared-utils';
 import { Request, Response } from 'express';
 import Caches from '../../classes/Caches';
 import ServerLogger from '../../classes/ServerLogger';
 import { UserModel } from '../../models/UserModel';
 
-async function removeLike(req: Request<undefined, undefined, AddLikeRequest>, res: Response): Promise<void> {
+async function removeLike(req: Request<undefined, undefined, RemoveLikeRequest>, res: Response): Promise<void> {
     try {
         const { access_token, guildId } = req.body;
         if (typeof access_token !== 'string') {
