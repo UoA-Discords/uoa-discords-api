@@ -12,6 +12,7 @@ import { getToken, refreshToken, revokeToken } from './handlers/auth';
 import getServers from './handlers/servers/getServers';
 import addLike from './handlers/users/addLike';
 import getLikes from './handlers/users/getLikes';
+import removeLike from './handlers/users/removeLike';
 
 const router = Router();
 
@@ -26,6 +27,7 @@ router.get(GETRoutes.GetServers, getServers);
 
 router.get(GETRoutes.GetUserLikes, getLikes);
 router.post(POSTUserRoutes.AddLike, addLike);
+router.post(POSTUserRoutes.RemoveLike, removeLike);
 
 router.post(POSTAuthRoutes.GetToken, getToken);
 router.post(POSTAuthRoutes.RefreshToken, refreshToken);
