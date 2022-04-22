@@ -40,6 +40,7 @@ async function getServers(req: Request, res: Response): Promise<void> {
                     approvedAt: servers[i].approvedAt,
                     bot: servers[i].bot,
                     memberCountHistory: servers[i].memberCountHistory,
+                    likes: servers[i].likes ?? 0,
                 };
 
                 validServers.push(payload);

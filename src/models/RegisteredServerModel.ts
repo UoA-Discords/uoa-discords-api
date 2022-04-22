@@ -11,6 +11,7 @@ export const RegisteredServerSchema = new Schema<RegisteredServer>({
     approvedAt: Number,
     bot: {},
     memberCountHistory: [Number],
+    likes: Number,
 });
 
 export const RegisteredServerModel = model('registered_servers', RegisteredServerSchema);
