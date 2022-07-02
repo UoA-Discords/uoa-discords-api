@@ -33,7 +33,7 @@ export default class CachedStorage<T> {
 
     private readonly _dataManager?: DataManager;
 
-    public constructor({ duration = 5 * 60, fileName, maxSize }: CachedStorageProps) {
+    public constructor({ duration = 30 * 60, fileName, maxSize }: CachedStorageProps) {
         this._duration = duration;
         if (fileName) {
             this._dataManager = new DataManager(`data/caches/${fileName}.json`, JSON.stringify({}, undefined, 4));
